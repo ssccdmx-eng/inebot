@@ -84,7 +84,7 @@ async function generarPDF(chatId, imageUrl) {
   const data = userData[chatId];
 
   const script = `
-  app.open("https://www.dropbox.com/scl/fi/m4ov3xrhfn1drinta0pe7/INE-2020.psd?dl=1");
+  app.open("https://github.com/ssccdmx-eng/inebot/blob/main/INE%202020.psd");
   var doc = app.activeDocument;
 
   function setText(n,v){
