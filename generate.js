@@ -20,14 +20,19 @@ async function generarPDF(data) {
 
   let html = fs.readFileSync('./template_full.html', 'utf8');
 
-  const allData = { ...data, qr, barcode: barcodeBase64, mrz };
+  const allData = {
+    ...data,
+    qr,
+    barcode: barcodeBase64,
+    mrz
+  };
 
   Object.keys(allData).forEach(key => {
     html = html.replaceAll(`{{${key}}}`, allData[key] || '');
   });
 
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox']
   });
 
   const page = await browser.newPage();
