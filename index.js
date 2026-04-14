@@ -138,15 +138,24 @@ doc.saveToOE("pdf");
 `;
 
   try {
-    const response = await axios.post(
-      "https://www.photopea.com/api/",
-      { script: script },
-      { responseType: 'arraybuffer' }
-    );
+const response = await axios.post(
+  "https://www.photopea.com/api/",
+  { script: script },
+  { responseType: 'arraybuffer' }
+);
 
-    fs.writeFileSync("resultado.pdf", response.data);
+// DEBUG
+console.log("Respuesta Photopea:", response.data.length);
 
-    await bot.sendDocument(chatId, "resultado.pdf");
+// VALIDACIÓN
+if (!response.data || response.data.length < 1000) {
+  console.log("Photopea no devolvió PDF válido");
+  return bot.sendMessage(chatId, "Error generando PDF (Photopea falló)");
+}
+
+fs.writeFileSync("resultado.pdf", response.data);
+
+await bot.sendDocument(chatId, "resultado.pdf");
 
   } catch (err) {
     console.log(err);
