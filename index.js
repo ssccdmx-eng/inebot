@@ -85,8 +85,7 @@ async function generarPDF(chatId, imageUrl) {
 
   const data = userData[chatId];
 
-  const script = `
-app.open("https://github.com/ssccdmx-eng/inebot/raw/main/INE-2020.psd");
+  const script = app.open("https://github.com/ssccdmx-eng/inebot/raw/main/INE-2020.psd");
 var doc = app.activeDocument;
 
 function setText(n,v){
@@ -140,7 +139,6 @@ newLayer.name = "perfil";
 
 // ===== EXPORT =====
 doc.saveToOE("pdf");
-`;
 
   try {
 const response = await axios.post(
