@@ -18,7 +18,11 @@ bot.on('message', async (msg) => {
   const data = userData[chatId];
 
   if (!data.nombre) {
-    data.nombre = msg.text;
+const partes = msg.text.split(" ");
+
+data.nombre = partes[0] || "";
+data.paterno = partes[1] || "";
+data.materno = partes[2] || "";
     return bot.sendMessage(chatId, "Apellido paterno:");
   }
 
