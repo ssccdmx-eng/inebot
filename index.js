@@ -16,7 +16,7 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 
 let userData = {};
 
-// ===== INICIO =====
+// ===== START =====
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   userData[chatId] = { step: 'nombre' };
@@ -29,36 +29,30 @@ bot.on('message', async (msg) => {
   if (!userData[chatId]) return;
 
   let step = userData[chatId].step;
-if (msg.photo) {
-  try {
-    const fileId = msg.photo.pop().file_id;
 
-    // 🔥 URL directa (NO .href)
-    const fileUrl = await bot.getFileLink(fileId);
-const res = await axios.get(fileUrl, { responseType: 'arraybuffer' });
-    fs.writeFileSync('foto.jpg', res.data);
+  // ===== FOTO =====
+  if (msg.photo) {
+    try {
+      const fileId = msg.photo.pop().file_id;
 
-    // subir imagen
-    const upload = await cloudinary.uploader.upload('foto.jpg');
-    const imageUrl = upload.secure_url;
+      const fileUrl = await bot.getFileLink(fileId);
 
-    await generarPDF(chatId, imageUrl);
+      const res = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+      fs.writeFileSync('foto.jpg', res.data);
 
-  } catch (err) {
-    console.log(err);
-    bot.sendMessage(chatId, "Error procesando la imagen");
-  }
-}
+      const upload = await cloudinary.uploader.upload('foto.jpg');
+      const imageUrl = upload.secure_url;
 
       await generarPDF(chatId, imageUrl);
 
     } catch (err) {
       console.log(err);
-      bot.sendMessage(chatId, "Error procesando imagen");
+      bot.sendMessage(chatId, "Error procesando la imagen");
     }
     return;
   }
 
+  // ===== DATOS =====
   if (step === 'nombre') {
     userData[chatId].nombre = msg.text;
     userData[chatId].step = 'sexo';
@@ -92,30 +86,27 @@ async function generarPDF(chatId, imageUrl) {
   const data = userData[chatId];
 
   const script = `
-  app.open("https://raw.githubusercontent.com/ssccdmx-eng/inebot/main/INE-2020.psd");
-  var doc = app.activeDocument;
+app.open("https://raw.githubusercontent.com/ssccdmx-eng/inebot/main/INE-2020.psd");
+var doc = app.activeDocument;
 
-  function setText(n,v){
-    try{ doc.layers.getByName(n).textItem.contents = v }catch(e){}
-  }
+function setText(n,v){
+  try{ doc.layers.getByName(n).textItem.contents = v }catch(e){}
+}
 
-  setText("NOMBRE","${data.nombre}");
-  setText("SEXO","${data.sexo}");
-  setText("DOMICILIO","${data.domicilio}");
-  setText("CURP","${data.curp}");
-  setText("CLAVE","${data.clave}");
+setText("NOMBRE","${data.nombre}");
+setText("SEXO","${data.sexo}");
+setText("DOMICILIO","${data.domicilio}");
+setText("CURP","${data.curp}");
+setText("CLAVE","${data.clave}");
 
-// ===== FOTO PRO =====
+// ===== FOTO =====
 var img = app.open("${imageUrl}");
 img.activeLayer.duplicate(doc);
 img.close();
 
 var newLayer = doc.activeLayer;
-
-// capa objetivo
 var target = doc.layers.getByName("perfil");
 
-// mover encima
 newLayer.move(target, ElementPlacement.PLACEBEFORE);
 
 // dimensiones
@@ -138,20 +129,27 @@ var dy = (tb[1]+th/2) - (b[1]+(b[3]-b[1])/2);
 
 newLayer.translate(dx, dy);
 
-// eliminar anterior
+// eliminar placeholder
 target.remove();
-
 newLayer.name = "perfil";
 
-  // ===== EXPORT =====
-  doc.saveToOE("pdf");
-  `;
+// ===== EXPORT =====
+doc.saveToOE("pdf");
+`;
 
-  const response = await axios.post("https://www.photopea.com/api/", {
-    script: script
-  }, { responseType: 'arraybuffer' });
+  try {
+    const response = await axios.post(
+      "https://www.photopea.com/api/",
+      { script: script },
+      { responseType: 'arraybuffer' }
+    );
 
-  fs.writeFileSync("resultado.pdf", response.data);
+    fs.writeFileSync("resultado.pdf", response.data);
 
-  await bot.sendDocument(chatId, "resultado.pdf");
+    await bot.sendDocument(chatId, "resultado.pdf");
+
+  } catch (err) {
+    console.log(err);
+    bot.sendMessage(chatId, "Error generando PDF");
+  }
 }
