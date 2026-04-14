@@ -29,18 +29,27 @@ bot.on('message', async (msg) => {
   if (!userData[chatId]) return;
 
   let step = userData[chatId].step;
+if (msg.photo) {
+  try {
+    const fileId = msg.photo.pop().file_id;
 
-  if (msg.photo) {
-    try {
-      const fileId = msg.photo.pop().file_id;
-      const file = await bot.getFileLink(fileId);
+    // 🔥 URL directa (NO .href)
+    const fileUrl = await bot.getFileLink(fileId);
 
-      const res = await axios.get(file.href, { responseType: 'arraybuffer' });
-      fs.writeFileSync('foto.jpg', res.data);
+    const res = await axios.get(fileUrl, { responseType: 'arraybuffer' });
+    fs.writeFileSync('foto.jpg', res.data);
 
-      // subir imagen
-      const upload = await cloudinary.uploader.upload('foto.jpg');
-      const imageUrl = upload.secure_url;
+    // subir imagen
+    const upload = await cloudinary.uploader.upload('foto.jpg');
+    const imageUrl = upload.secure_url;
+
+    await generarPDF(chatId, imageUrl);
+
+  } catch (err) {
+    console.log(err);
+    bot.sendMessage(chatId, "Error procesando la imagen");
+  }
+}
 
       await generarPDF(chatId, imageUrl);
 
