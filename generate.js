@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const QRCode = require('qrcode');
 const bwipjs = require('bwip-js');
+const mrz = `${data.paterno}<<${data.materno}<<${data.nombre}<<<<${data.curp}`;
 
 async function generarPDF(data) {
 
