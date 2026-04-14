@@ -4,15 +4,15 @@ const fs = require('fs');
 const cloudinary = require('cloudinary').v2;
 
 // ===== CONFIG =====
-const 8754289463:AAE5_F4YndS-FtdbuKFr4yPSTQnEex23Aug = process.env.TOKEN;
+const TOKEN = process.env.TOKEN;
 
 cloudinary.config({
-  dxfen4592: process.env.CLOUD_NAME,
-  792593878287826: process.env.API_KEY,
-  mQ_BSa_8txx5tud5s5B1_3kXj3g: process.env.API_SECRET
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
 });
 
-const bot = new TelegramBot(8754289463:AAE5_F4YndS-FtdbuKFr4yPSTQnEex23Aug, { polling: true });
+const bot = new TelegramBot(TOKEN, { polling: true });
 
 let userData = {};
 
@@ -84,7 +84,7 @@ async function generarPDF(chatId, imageUrl) {
   const data = userData[chatId];
 
   const script = `
-  app.open("https://github.com/ssccdmx-eng/inebot/blob/main/INE%202020.psd");
+  app.open("https://raw.githubusercontent.com/ssccdmx-eng/inebot/main/INE-2020.psd");
   var doc = app.activeDocument;
 
   function setText(n,v){
@@ -97,50 +97,42 @@ async function generarPDF(chatId, imageUrl) {
   setText("CURP","${data.curp}");
   setText("CLAVE","${data.clave}");
 
-// ===== FOTO (AJUSTE PROFESIONAL) =====
+// ===== FOTO PRO =====
 var img = app.open("${imageUrl}");
-var docW = doc.width;
-var docH = doc.height;
-
-// copiar imagen
 img.activeLayer.duplicate(doc);
 img.close();
 
 var newLayer = doc.activeLayer;
 
-// buscar capa destino
+// capa objetivo
 var target = doc.layers.getByName("perfil");
 
-// mover encima del target
+// mover encima
 newLayer.move(target, ElementPlacement.PLACEBEFORE);
 
-// ===== ESCALAR AUTOMÁTICO =====
-var bounds = newLayer.bounds;
-var w = bounds[2] - bounds[0];
-var h = bounds[3] - bounds[1];
+// dimensiones
+var b = newLayer.bounds;
+var w = b[2]-b[0];
+var h = b[3]-b[1];
 
-// tamaño del marco (perfil)
 var tb = target.bounds;
-var tw = tb[2] - tb[0];
-var th = tb[3] - tb[1];
+var tw = tb[2]-tb[0];
+var th = tb[3]-tb[1];
 
-// escala tipo "cover"
-var scale = Math.max(tw / w, th / h) * 100;
+// escala tipo cover
+var scale = Math.max(tw/w, th/h) * 100;
 newLayer.resize(scale, scale);
 
 // centrar
-bounds = newLayer.bounds;
-var dx = (tb[0] + tw/2) - (bounds[0] + (bounds[2]-bounds[0])/2);
-var dy = (tb[1] + th/2) - (bounds[1] + (bounds[3]-bounds[1])/2);
+b = newLayer.bounds;
+var dx = (tb[0]+tw/2) - (b[0]+(b[2]-b[0])/2);
+var dy = (tb[1]+th/2) - (b[1]+(b[3]-b[1])/2);
 
 newLayer.translate(dx, dy);
 
-// eliminar placeholder viejo
-try {
-    target.remove();
-} catch(e){}
+// eliminar anterior
+target.remove();
 
-// renombrar
 newLayer.name = "perfil";
 
   // ===== EXPORT =====
