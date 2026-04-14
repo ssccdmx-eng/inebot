@@ -6,33 +6,22 @@
 
 body { margin:0; font-family: Arial; }
 
-/* ===== CONTENEDOR ===== */
-.page {
-  width: 1000px;
-}
+.page { width: 1000px; }
 
-/* ===== FRENTE ===== */
-.front {
+.front, .back {
   position: relative;
   width: 1000px;
   height: 630px;
 }
 
-.back {
-  position: relative;
-  width: 1000px;
-  height: 630px;
-  margin-top: 40px;
-}
+.back { margin-top: 40px; }
 
-/* BASE */
 .base {
   position: absolute;
   width: 100%;
   height: 100%;
 }
 
-/* FOTO */
 .foto {
   position: absolute;
   top: 190px;
@@ -42,17 +31,14 @@ body { margin:0; font-family: Arial; }
   object-fit: cover;
 }
 
-/* FOTO MINI */
 .foto-mini {
   position: absolute;
   top: 150px;
   left: 820px;
   width: 110px;
   height: 130px;
-  object-fit: cover;
 }
 
-/* FIRMA */
 .firma {
   position: absolute;
   top: 470px;
@@ -60,15 +46,14 @@ body { margin:0; font-family: Arial; }
   width: 220px;
 }
 
-/* TEXTOS */
-.text { position:absolute; color:#000; }
+.text { position:absolute; }
 
-.nombre { top:210px; left:320px; font-size:22px; font-weight:bold; }
-.paterno { top:240px; left:320px; font-size:20px; }
-.materno { top:270px; left:320px; font-size:20px; }
+.nombre { top:210px; left:320px; }
+.paterno { top:240px; left:320px; }
+.materno { top:270px; left:320px; }
 
-.curp { top:450px; left:320px; font-size:18px; letter-spacing:2px; }
-.clave { top:480px; left:320px; font-size:18px; }
+.curp { top:450px; left:320px; }
+.clave { top:480px; left:320px; }
 
 .sexo { top:210px; left:780px; }
 .estado { top:510px; left:320px; }
@@ -76,8 +61,6 @@ body { margin:0; font-family: Arial; }
 .registro { top:210px; left:560px; }
 .seccion { top:240px; left:560px; }
 .vigencia { top:270px; left:560px; }
-
-/* ===== REVERSO ===== */
 
 .qr1 { position:absolute; top:200px; left:100px; width:150px; }
 .qr2 { position:absolute; top:200px; left:300px; width:150px; }
@@ -94,8 +77,6 @@ body { margin:0; font-family: Arial; }
   position:absolute;
   bottom:30px;
   left:200px;
-  font-size:18px;
-  letter-spacing:3px;
   font-family: monospace;
 }
 
@@ -106,41 +87,39 @@ body { margin:0; font-family: Arial; }
 
 <div class="page">
 
-  <!-- ===== FRENTE ===== -->
-  <div class="front">
-    <img src="front.png" class="base">
+<div class="front">
+  <img src="front.png" class="base">
 
-    <img src="{{foto}}" class="foto">
-    <img src="{{fotoMini}}" class="foto-mini">
-    <img src="{{firma}}" class="firma">
+  <img src="{{foto}}" class="foto">
+  <img src="{{fotoMini}}" class="foto-mini">
+  <img src="{{firma}}" class="firma">
 
-    <div class="text nombre">{{nombre}}</div>
-    <div class="text paterno">{{paterno}}</div>
-    <div class="text materno">{{materno}}</div>
+  <div class="text nombre">{{nombre}}</div>
+  <div class="text paterno">{{paterno}}</div>
+  <div class="text materno">{{materno}}</div>
 
-    <div class="text curp">{{curp}}</div>
-    <div class="text clave">{{clave}}</div>
+  <div class="text curp">{{curp}}</div>
+  <div class="text clave">{{clave}}</div>
 
-    <div class="text sexo">{{sexo}}</div>
-    <div class="text estado">{{estado}}</div>
+  <div class="text sexo">{{sexo}}</div>
+  <div class="text estado">{{estado}}</div>
 
-    <div class="text registro">{{registro}}</div>
-    <div class="text seccion">{{seccion}}</div>
-    <div class="text vigencia">{{vigencia}}</div>
-  </div>
+  <div class="text registro">{{registro}}</div>
+  <div class="text seccion">{{seccion}}</div>
+  <div class="text vigencia">{{vigencia}}</div>
+</div>
 
-  <!-- ===== REVERSO ===== -->
-  <div class="back">
-    <img src="back.png" class="base">
+<div class="back">
+  <img src="back.png" class="base">
 
-    <img src="{{qr}}" class="qr1">
-    <img src="{{qr}}" class="qr2">
-    <img src="{{qr}}" class="qr3">
+  <img src="{{qr}}" class="qr1">
+  <img src="{{qr}}" class="qr2">
+  <img src="{{qr}}" class="qr3">
 
-    <img src="{{barcode}}" class="barcode">
+  <img src="{{barcode}}" class="barcode">
 
-    <div class="mrz">{{mrz}}</div>
-  </div>
+  <div class="mrz">{{mrz}}</div>
+</div>
 
 </div>
 
