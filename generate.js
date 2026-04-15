@@ -7,12 +7,12 @@ console.log("DATA:", data);
 module.exports = async function generarPDF(data) {
 
   let html = fs.readFileSync('./template_full.html', 'utf8');
-const front = 'file://' + path.resolve('./front.png');
-const back = 'file://' + path.resolve('./back.png');
+const frontBase64 = fs.readFileSync('./front.png', { encoding: 'base64' });
+const backBase64 = fs.readFileSync('./back.png', { encoding: 'base64' });
 
 html = html
-  .replace('front.png', front)
-  .replace('back.png', back);
+  .replace('front.png', `data:image/png;base64,${frontBase64}`)
+  .replace('back.png', `data:image/png;base64,${backBase64}`);
   html = html
     .replace('{{foto}}', data.foto || '')
     .replace('{{fotoMini}}', data.fotoMini || '')
