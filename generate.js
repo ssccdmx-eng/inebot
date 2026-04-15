@@ -31,7 +31,15 @@ module.exports = async function generarPDF(data) {
 
   const page = await browser.newPage();
 
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.setContent(html, {
+  waitUntil: 'networkidle0'
+});
+
+await page.evaluate(() => {
+  document.querySelectorAll('img').forEach(img => {
+    img.src = img.src;
+  });
+});
 
   const filePath = path.join(__dirname, `output.pdf`);
 
