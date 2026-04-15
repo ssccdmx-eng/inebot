@@ -3,7 +3,7 @@ const fs = require('fs');
 const QRCode = require('qrcode');
 const bwipjs = require('bwip-js');
 
-async function generarPDF(chatId, imageUrl, data) 
+async function generarPDF(chatId, data) {
 
   const qr = await QRCode.toDataURL(data.curp);
 
@@ -16,9 +16,16 @@ async function generarPDF(chatId, imageUrl, data)
 
   const barcodeBase64 = `data:image/png;base64,${barcode.toString('base64')}`;
 
-const mrz = `${data.paterno}<<${data.materno}<<${data.nombre}<<<<${data.curp}`;
+  const mrz = `${data.paterno}<<${data.materno}<<${data.nombre}<<<<${data.curp}`;
 
   let html = fs.readFileSync('./template_full.html', 'utf8');
+
+  const allData = {
+    ...data,
+    qr,
+    barcode: barcodeBase64,
+    mrz
+  };
 
   Object.keys(allData).forEach(key => {
     html = html.replaceAll(`{{${key}}}`, allData[key] || '');
