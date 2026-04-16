@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<style>
 
+<style>
 body {
   margin: 0;
   background: #fff;
@@ -12,6 +12,7 @@ body {
 
 .page {
   width: 1000px;
+  height: 1260px;
 }
 
 /* ===== TARJETAS ===== */
@@ -58,110 +59,39 @@ body {
   object-fit: contain;
 }
 
-/* ===== TEXTO BASE ===== */
+/* ===== TEXTO ===== */
 .text {
   position: absolute;
   color: #000;
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* ===== NOMBRE ===== */
-.paterno {
-  top: 210px;
-  left: 320px;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.materno {
-  top: 240px;
-  left: 320px;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.nombre {
-  top: 270px;
-  left: 320px;
-  font-size: 17px;
-  font-weight: bold;
-}
+.paterno { top: 210px; left: 320px; font-size: 17px; font-weight: bold; }
+.materno { top: 240px; left: 320px; font-size: 17px; font-weight: bold; }
+.nombre  { top: 270px; left: 320px; font-size: 17px; font-weight: bold; }
 
 /* ===== DATOS ===== */
-.domicilio {
-  top: 305px;
-  left: 320px;
-  width: 420px;
-  font-size: 13px;
-  line-height: 15px;
-}
-
-.curp {
-  top: 440px;
-  left: 320px;
-  font-size: 15px;
-  letter-spacing: 2px;
-}
-
-.clave {
-  top: 470px;
-  left: 320px;
-  font-size: 15px;
-}
+.domicilio { top: 305px; left: 320px; width: 420px; font-size: 13px; }
+.curp { top: 440px; left: 320px; font-size: 15px; }
+.clave { top: 470px; left: 320px; font-size: 15px; }
 
 /* ===== DERECHA ===== */
-.sexo {
-  top: 210px;
-  left: 780px;
-  font-size: 16px;
-}
-
-.registro {
-  top: 210px;
-  left: 550px;
-  font-size: 13px;
-}
-
-.seccion {
-  top: 240px;
-  left: 550px;
-  font-size: 13px;
-}
-
-.vigencia {
-  top: 270px;
-  left: 550px;
-  font-size: 13px;
-}
-
-.estado {
-  top: 500px;
-  left: 320px;
-  font-size: 13px;
-}
+.sexo { top: 210px; left: 780px; font-size: 16px; }
+.registro { top: 210px; left: 550px; font-size: 13px; }
+.seccion { top: 240px; left: 550px; font-size: 13px; }
+.vigencia { top: 270px; left: 550px; font-size: 13px; }
+.estado { top: 500px; left: 320px; font-size: 13px; }
 
 /* ===== BACK ===== */
-
-.qr1 {
+.qr1, .qr2, .qr3 {
   position: absolute;
   top: 200px;
-  left: 120px;
   width: 130px;
 }
 
-.qr2 {
-  position: absolute;
-  top: 200px;
-  left: 300px;
-  width: 130px;
-}
-
-.qr3 {
-  position: absolute;
-  top: 200px;
-  left: 480px;
-  width: 130px;
-}
+.qr1 { left: 120px; }
+.qr2 { left: 300px; }
+.qr3 { left: 480px; }
 
 .barcode {
   position: absolute;
@@ -176,9 +106,7 @@ body {
   left: 180px;
   font-family: monospace;
   font-size: 14px;
-  letter-spacing: 2px;
 }
-
 </style>
 </head>
 
@@ -192,25 +120,29 @@ body {
   <img src="{{foto}}" class="foto">
   <img src="{{fotoMini}}" class="foto-mini">
   <img src="{{firma}}" class="firma">
-<div class="text paterno">{{paterno}}</div>
-<div class="text materno">{{materno}}</div>
-<div class="text nombre">{{nombre}}</div>
 
-<div class="text domicilio">{{domicilio}}</div>
+  <div class="text paterno">{{paterno}}</div>
+  <div class="text materno">{{materno}}</div>
+  <div class="text nombre">{{nombre}}</div>
 
-<div class="text curp">{{curp}}</div>
-<div class="text clave">{{clave}}</div>
+  <div class="text domicilio">{{domicilio}}</div>
+  <div class="text curp">{{curp}}</div>
+  <div class="text clave">{{clave}}</div>
 
-<div class="text sexo">{{sexo}}</div>
-<div class="text estado">{{estado}}</div>
+  <div class="text sexo">{{sexo}}</div>
+  <div class="text estado">{{estado}}</div>
 
-<div class="text registro">{{registro}}</div>
-<div class="text seccion">{{seccion}}</div>
-<div class="text vigencia">{{vigencia}}</div>
+  <div class="text registro">{{registro}}</div>
+  <div class="text seccion">{{seccion}}</div>
+  <div class="text vigencia">{{vigencia}}</div>
 </div>
 
 <div class="back">
   <img src="back.png" class="base">
+
+  <img src="{{qr}}" class="qr1">
+  <img src="{{qr}}" class="qr2">
+  <img src="{{qr}}" class="qr3">
 
   <img src="{{barcode}}" class="barcode">
 
