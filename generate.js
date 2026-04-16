@@ -14,7 +14,7 @@ html = html
   .replace('front.png', `data:image/png;base64,${frontBase64}`)
   .replace('back.png', `data:image/png;base64,${backBase64}`);
   html = html
-    .replace('{{foto}}', data.foto || '')
+    .replace('{{foto}}', userData[chatId].foto = url; || '')
     .replace('{{fotoMini}}', data.fotoMini || '')
     .replace('{{firma}}', data.firma || '')
     .replace('{{paterno}}', data.paterno || '')
