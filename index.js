@@ -1,11 +1,13 @@
 const TelegramBot = require('node-telegram-bot-api');
 const generatePDF = require('./generate');
 const axios = require('axios');
-
 const token = process.env.BOT_TOKEN;
 
+console.log("TOKEN:", token);
+
 if (!token) {
-  throw new Error('BOT_TOKEN no definido');
+  console.error("❌ BOT_TOKEN no definido en Railway");
+  process.exit(1); // termina limpio, sin loop infinito
 }
 
 const bot = new TelegramBot(token, { polling: true });
