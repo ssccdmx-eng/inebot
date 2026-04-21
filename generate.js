@@ -5,27 +5,45 @@ const path = require('path');
 
 module.exports = async function (data) {
 
-  // procesar foto (tamaño correcto credencial)
+  // 🧠 recorte inteligente (centrado tipo rostro)
   const foto = await sharp(data.fotoBuffer)
-    .resize(260, 320)
-    .jpeg({ quality: 90 })
+    .resize(260, 320, {
+      fit: 'cover',
+      position: 'centre'
+    })
+    .jpeg({ quality: 95 })
     .toBuffer();
 
-  const base64 = `data:image/jpeg;base64,${foto.toString('base64')}`;
+  const fotoBase64 = `data:image/jpeg;base64,${foto.toString('base64')}`;
 
-  // fondo a base64 (CRÍTICO)
-  const frontPath = path.join(__dirname, 'front.png');
-  const frontBase64 = fs.readFileSync(frontPath, { encoding: 'base64' });
+  // fondo frente
+  const frontBase64 = fs.readFileSync(
+    path.join(__dirname, 'front.png'),
+    { encoding: 'base64' }
+  );
 
-  let html = fs.readFileSync(path.join(__dirname, 'template.html'), 'utf8');
+  // fondo reverso (usa tu back.png si lo tienes)
+  let backBase64 = '';
+  try {
+    backBase64 = fs.readFileSync(
+      path.join(__dirname, 'back.png'),
+      { encoding: 'base64' }
+    );
+  } catch {}
+
+  let html = fs.readFileSync(
+    path.join(__dirname, 'template.html'),
+    'utf8'
+  );
 
   html = html
+    .replace(/{{foto}}/g, fotoBase64)
     .replace('{{nombre}}', data.nombre || '')
     .replace('{{paterno}}', data.paterno || '')
     .replace('{{materno}}', data.materno || '')
     .replace('{{curp}}', data.curp || '')
-    .replace(/{{foto}}/g, base64)
-    .replace('front.png', `data:image/png;base64,${frontBase64}`);
+    .replace('front.png', `data:image/png;base64,${frontBase64}`)
+    .replace('back.png', `data:image/png;base64,${backBase64}`);
 
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
@@ -37,7 +55,7 @@ module.exports = async function (data) {
 
   const pdf = await page.pdf({
     width: '860px',
-    height: '540px',
+    height: '1080px', // frente + reverso
     printBackground: true
   });
 
