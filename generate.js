@@ -1,61 +1,48 @@
-const puppeteer = require('puppeteer');
-const sharp = require('sharp');
 const fs = require('fs');
-const path = require('path');
+const puppeteer = require('puppeteer');
+const QRCode = require('qrcode');
+const bwipjs = require('bwip-js');
 
-module.exports = async function (data) {
+module.exports = async function generatePDF(data) {
 
-  // 🧠 recorte inteligente (centrado tipo rostro)
-  const foto = await sharp(data.fotoBuffer)
-    .resize(260, 320, {
-      fit: 'cover',
-      position: 'centre'
-    })
-    .jpeg({ quality: 95 })
-    .toBuffer();
+  const qr = await QRCode.toDataURL(JSON.stringify(data));
 
-  const fotoBase64 = `data:image/jpeg;base64,${foto.toString('base64')}`;
+  const barcode = await bwipjs.toBuffer({
+    bcid: 'code128',
+    text: data.curp,
+    scale: 3,
+    height: 10
+  });
 
-  // fondo frente
-  const frontBase64 = fs.readFileSync(
-    path.join(__dirname, 'front.png'),
-    { encoding: 'base64' }
-  );
+  const barcodeBase64 = `data:image/png;base64,${barcode.toString('base64')}`;
 
-  // fondo reverso (usa tu back.png si lo tienes)
-  let backBase64 = '';
-  try {
-    backBase64 = fs.readFileSync(
-      path.join(__dirname, 'back.png'),
-      { encoding: 'base64' }
-    );
-  } catch {}
-
-  let html = fs.readFileSync(
-    path.join(__dirname, 'template.html'),
-    'utf8'
-  );
+  let html = fs.readFileSync('./template.html', 'utf8');
 
   html = html
-    .replace(/{{foto}}/g, fotoBase64)
-    .replace('{{nombre}}', data.nombre || '')
-    .replace('{{paterno}}', data.paterno || '')
-    .replace('{{materno}}', data.materno || '')
-    .replace('{{curp}}', data.curp || '')
-    .replace('front.png', `data:image/png;base64,${frontBase64}`)
-    .replace('back.png', `data:image/png;base64,${backBase64}`);
+    .replace('{{nombre}}', data.nombre)
+    .replace('{{paterno}}', data.paterno)
+    .replace('{{materno}}', data.materno)
+    .replace('{{fechaNacimiento}}', data.fechaNacimiento)
+    .replace('{{sexo}}', data.sexo)
+    .replace('{{curp}}', data.curp)
+    .replace('{{domicilio}}', data.domicilio)
+    .replace('{{seccion}}', data.seccion)
+    .replace('{{registro}}', data.registro)
+    .replace('{{vigencia}}', data.vigencia)
+    .replace('{{foto}}', data.foto)
+    .replace('{{firma}}', data.firma)
+    .replace('{{qr}}', qr)
+    .replace('{{barcode}}', barcodeBase64);
 
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   });
 
   const page = await browser.newPage();
-
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.setContent(html);
 
   const pdf = await page.pdf({
-    width: '860px',
-    height: '1080px', // frente + reverso
+    format: 'A4',
     printBackground: true
   });
 
