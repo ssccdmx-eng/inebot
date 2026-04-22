@@ -1,42 +1,28 @@
-const faceapi = require('@vladmandic/face-api');
-const canvas = require('canvas');
 const sharp = require('sharp');
 
-const { Canvas, Image, ImageData } = canvas;
-faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
+module.exports.processPhoto = async (buffer) => {
 
-let loaded = false;
+  const image = sharp(buffer);
+  const metadata = await image.metadata();
 
-async function loadModels() {
-  if (loaded) return;
-  await faceapi.nets.ssdMobilenetv1.loadFromDisk('./models');
-  loaded = true;
-}
+  const width = metadata.width;
+  const height = metadata.height;
 
-exports.processPhoto = async (buffer) => {
-  await loadModels();
+  // 🧠 recorte tipo rostro (centro vertical)
+  const cropWidth = Math.min(width, height * 0.75);
+  const cropHeight = cropWidth * 1.25;
 
-  const img = await canvas.loadImage(buffer);
-  const detections = await faceapi.detectAllFaces(img);
+  const left = (width - cropWidth) / 2;
+  const top = (height - cropHeight) / 3;
 
-  let crop = { left: 0, top: 0, width: img.width, height: img.height };
-
-  if (detections.length) {
-    const box = detections[0].box;
-
-    crop = {
-      left: Math.max(0, box.x - 40),
-      top: Math.max(0, box.y - 40),
-      width: Math.min(img.width, box.width + 80),
-      height: Math.min(img.height, box.height + 80)
-    };
-  }
-
-  const output = await sharp(buffer)
-    .extract(crop)
+  return await image
+    .extract({
+      left: Math.max(0, Math.floor(left)),
+      top: Math.max(0, Math.floor(top)),
+      width: Math.floor(cropWidth),
+      height: Math.floor(cropHeight)
+    })
     .resize(400, 500)
     .jpeg()
     .toBuffer();
-
-  return output;
 };
