@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const TelegramBot = require('node-telegram-bot-api');
 const generatePDF = require('./generate');
 const axios = require('axios');
@@ -12,73 +10,98 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
+const userState = {};
 const userData = {};
+
+const steps = [
+  'nombre',
+  'paterno',
+  'materno',
+  'fechaNacimiento',
+  'sexo',
+  'curp',
+  'domicilio',
+  'seccion',
+  'registro',
+  'vigencia',
+  'foto',
+  'firma'
+];
+
+const questions = {
+  nombre: 'Nombre:',
+  paterno: 'Apellido paterno:',
+  materno: 'Apellido materno:',
+  fechaNacimiento: 'Fecha nacimiento (DD/MM/AAAA):',
+  sexo: 'Sexo (H/M):',
+  curp: 'CURP:',
+  domicilio: 'Domicilio completo:',
+  seccion: 'Sección:',
+  registro: 'Año de registro:',
+  vigencia: 'Vigencia:',
+  foto: 'Envía FOTO:',
+  firma: 'Envía FIRMA:'
+};
 
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
 
-  userData[chatId] = { step: 'nombre' };
+  userState[chatId] = 0;
+  userData[chatId] = {};
 
-  bot.sendMessage(chatId, 'Ingresa nombre:');
+  bot.sendMessage(chatId, 'Iniciando registro...\n' + questions[steps[0]]);
 });
 
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
 
-  if (!userData[chatId]) return;
+  if (!userState.hasOwnProperty(chatId)) return;
 
-  const state = userData[chatId];
+  const stepIndex = userState[chatId];
+  const currentStep = steps[stepIndex];
 
-  try {
-    if (state.step === 'nombre') {
-      state.nombre = msg.text;
-      state.step = 'paterno';
-      return bot.sendMessage(chatId, 'Apellido paterno:');
+  if (msg.text && currentStep !== 'foto' && currentStep !== 'firma') {
+    userData[chatId][currentStep] = msg.text;
+    userState[chatId]++;
+
+    if (userState[chatId] < steps.length) {
+      bot.sendMessage(chatId, questions[steps[userState[chatId]]]);
     }
+  }
 
-    if (state.step === 'paterno') {
-      state.paterno = msg.text;
-      state.step = 'materno';
-      return bot.sendMessage(chatId, 'Apellido materno:');
-    }
+  if (msg.photo && (currentStep === 'foto' || currentStep === 'firma')) {
+    const fileId = msg.photo[msg.photo.length - 1].file_id;
+    const file = await bot.getFile(fileId);
 
-    if (state.step === 'materno') {
-      state.materno = msg.text;
-      state.step = 'curp';
-      return bot.sendMessage(chatId, 'CURP:');
-    }
+    const url = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
 
-    if (state.step === 'curp') {
-      if (!/^[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}$/.test(msg.text)) {
-        return bot.sendMessage(chatId, 'CURP inválida');
+    const base64 = Buffer.from(response.data).toString('base64');
+
+    userData[chatId][currentStep] = `data:image/jpeg;base64,${base64}`;
+
+    userState[chatId]++;
+
+    if (userState[chatId] < steps.length) {
+      bot.sendMessage(chatId, questions[steps[userState[chatId]]]);
+    } else {
+      bot.sendMessage(chatId, 'Generando credencial...');
+
+      try {
+        const pdf = await generatePDF(userData[chatId]);
+
+        await bot.sendDocument(chatId, pdf, {}, {
+          filename: 'credencial.pdf',
+          contentType: 'application/pdf'
+        });
+
+        delete userState[chatId];
+        delete userData[chatId];
+
+      } catch (err) {
+        console.error(err);
+        bot.sendMessage(chatId, 'Error generando PDF');
       }
-
-      state.curp = msg.text;
-      state.step = 'foto';
-      return bot.sendMessage(chatId, 'Envía tu foto');
     }
-
-    if (msg.photo && state.step === 'foto') {
-      const fileId = msg.photo[msg.photo.length - 1].file_id;
-
-      const file = await bot.getFile(fileId);
-      const url = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
-
-      const res = await axios.get(url, { responseType: 'arraybuffer' });
-
-      state.fotoBuffer = Buffer.from(res.data);
-
-      bot.sendMessage(chatId, 'Generando PDF...');
-
-      const pdf = await generatePDF(state);
-
-      await bot.sendDocument(chatId, pdf);
-
-      delete userData[chatId];
-    }
-
-  } catch (err) {
-    console.error(err);
-    bot.sendMessage(chatId, 'Error procesando datos');
   }
 });
